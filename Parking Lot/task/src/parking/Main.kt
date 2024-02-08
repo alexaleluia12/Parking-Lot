@@ -90,7 +90,9 @@ class Parking() {
         }
     }
 
-    fun genericFindIntPattern(template: String, predicate: (CarSlot) -> Boolean) {
+    private fun genericFindSlotPattern(
+        template: String,
+        predicate: (CarSlot, ) -> Boolean) {
         val mach = mutableListOf<Int>()
 
         for (index in slots.indices) {
@@ -112,7 +114,7 @@ class Parking() {
             println("Sorry, a parking lot has not been created.")
             return
         }
-        genericFindIntPattern("color $color")
+        genericFindSlotPattern("color $color")
             { car -> car.color.equals(color, ignoreCase = true) }
     }
 
@@ -123,11 +125,13 @@ class Parking() {
             return
         }
 
-        genericFindIntPattern("registration number $registration")
+        genericFindSlotPattern("registration number $registration")
             {car -> car.registration.equals(registration, ignoreCase = true)}
     }
 
 
+    // caso tenha outros criterios para guardar o registro, usar msm genericFindSlotPattern()
+    // como exemplo para evitar duplicacao de codigo
     fun showRegisterByColor(color: String) {
         if (!isAvailable) {
             println("Sorry, a parking lot has not been created.")
