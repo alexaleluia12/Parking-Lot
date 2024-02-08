@@ -7,7 +7,7 @@ data class CarSlot(
     val registration: String = "Not-def",
     val color: String = "unknown")
 
-class Parking() {
+abstract class ParkingABS() {
     var space: Int = 0
     var isAvailable = false
     lateinit var slots: MutableList<CarSlot?>
@@ -19,11 +19,7 @@ class Parking() {
         println("Created a parking lot with $space spots.")
     }
 
-    fun status() {
-        if (!isAvailable) {
-            println("Sorry, a parking lot has not been created.")
-            return
-        }
+    open fun status() {
         var oneLeast = false
         for (i in slots.indices) {
             val car = slots[i]
@@ -41,11 +37,7 @@ class Parking() {
     /**
      * park with the lowest possible number
      */
-    fun park(color: String, registration: String) {
-        if (!isAvailable) {
-            println("Sorry, a parking lot has not been created.")
-            return
-        }
+    open fun park(color: String, registration: String) {
         val positionParked = parkInner(color, registration)
         if (positionParked == NOT_FOUND_PARK) {
             println("Sorry, the parking lot is full.")
@@ -73,12 +65,8 @@ class Parking() {
             foundIndex + 1
         }
     }
-    // em vez de ter esse if em cada funcao usar o padrao decorator
-    fun leave(position: Int) {
-        if (!isAvailable) {
-            println("Sorry, a parking lot has not been created.")
-            return
-        }
+
+    open fun leave(position: Int) {
         val truePosition = position - 1
         val current: CarSlot?  = slots.getOrNull(truePosition)
         current?.let {
@@ -109,35 +97,21 @@ class Parking() {
             println("No cars with $template were found.")
         }
     }
-    fun showSpotByColor(color: String) {
-        if (!isAvailable) {
-            println("Sorry, a parking lot has not been created.")
-            return
-        }
+    open fun showSpotByColor(color: String) {
         genericFindSlotPattern("color $color")
             { car -> car.color.equals(color, ignoreCase = true) }
     }
 
-
-    fun showSpotByRegistration(registration: String) {
-        if (!isAvailable) {
-            println("Sorry, a parking lot has not been created.")
-            return
-        }
-
+    open fun showSpotByRegistration(registration: String) {
         genericFindSlotPattern("registration number $registration")
             {car -> car.registration.equals(registration, ignoreCase = true)}
     }
 
-
-    // caso tenha outros criterios para guardar o registro, usar msm genericFindSlotPattern()
-    // como exemplo para evitar duplicacao de codigo
-    fun showRegisterByColor(color: String) {
-        if (!isAvailable) {
-            println("Sorry, a parking lot has not been created.")
-            return
-        }
-
+    open fun showRegisterByColor(color: String) {
+        /*
+        if there are more conditions to store the register use .genericFindSlotPattern() as an example
+        to reduce duplicated code
+         */
         val mach = mutableListOf<String>()
         for (carSpot in slots) {
             carSpot?.let {
@@ -153,8 +127,53 @@ class Parking() {
         }
     }
 
-    fun parkMessage(color: String, position: Int) {
+    private fun parkMessage(color: String, position: Int) {
         println("$color car parked in spot $position.")
+    }
+}
+
+class Parking : ParkingABS() {
+    private fun conditionToRun(): Boolean {
+        if (!isAvailable) {
+            println("Sorry, a parking lot has not been created.")
+            return false
+        }
+        return true
+    }
+    override fun showRegisterByColor(color: String) {
+        if (conditionToRun()) {
+            super.showRegisterByColor(color)
+        }
+    }
+
+    override fun leave(position: Int) {
+        if (conditionToRun()) {
+            super.leave(position)
+        }
+    }
+
+    override fun status() {
+        if (conditionToRun()) {
+            super.status()
+        }
+    }
+
+    override fun showSpotByColor(color: String) {
+        if (conditionToRun()) {
+            super.showSpotByColor(color)
+        }
+    }
+
+    override fun showSpotByRegistration(registration: String) {
+        if (conditionToRun()) {
+            super.showSpotByRegistration(registration)
+        }
+    }
+
+    override fun park(color: String, registration: String) {
+        if (conditionToRun()) {
+            super.park(color, registration)
+        }
     }
 }
 
