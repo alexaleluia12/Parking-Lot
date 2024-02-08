@@ -73,7 +73,7 @@ class Parking() {
             foundIndex + 1
         }
     }
-
+    // em vez de ter esse if em cada funcao usar o padrao decorator
     fun leave(position: Int) {
         if (!isAvailable) {
             println("Sorry, a parking lot has not been created.")
@@ -90,17 +90,13 @@ class Parking() {
         }
     }
 
-    fun showSpotByColor(color: String) {
-        if (!isAvailable) {
-            println("Sorry, a parking lot has not been created.")
-            return
-        }
-
+    fun genericFindIntPattern(template: String, predicate: (CarSlot) -> Boolean) {
         val mach = mutableListOf<Int>()
+
         for (index in slots.indices) {
             val carSpot = slots[index]
             carSpot?.let {
-                if (it.color.equals(color, ignoreCase = true)) {
+                if (predicate(it)) {
                     mach.add(index + 1)
                 }
             }
@@ -108,9 +104,18 @@ class Parking() {
         if (mach.isNotEmpty()) {
             println(mach.joinToString(separator = ", "))
         } else {
-            println("No cars with color $color were found.")
+            println("No cars with $template were found.")
         }
     }
+    fun showSpotByColor(color: String) {
+        if (!isAvailable) {
+            println("Sorry, a parking lot has not been created.")
+            return
+        }
+        genericFindIntPattern("color $color")
+            { car -> car.color.equals(color, ignoreCase = true) }
+    }
+
 
     fun showSpotByRegistration(registration: String) {
         if (!isAvailable) {
@@ -118,20 +123,8 @@ class Parking() {
             return
         }
 
-        val mach = mutableListOf<Int>()
-        for (index in slots.indices) {
-            val carSpot = slots[index]
-            carSpot?.let {
-                if (it.registration.equals(registration, ignoreCase = true)) {
-                    mach.add(index + 1)
-                }
-            }
-        }
-        if (mach.isNotEmpty()) {
-            println(mach.joinToString(separator = ", "))
-        } else {
-            println("No cars with registration number $registration were found.")
-        }
+        genericFindIntPattern("registration number $registration")
+            {car -> car.registration.equals(registration, ignoreCase = true)}
     }
 
 
